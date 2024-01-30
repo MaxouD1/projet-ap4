@@ -42,6 +42,12 @@ class Produits
     #[ORM\OneToMany(mappedBy: 'fkProduit', targetEntity: Existe::class)]
     private Collection $existes;
 
+    #[ORM\Column(length: 18, nullable: true)]
+    private ?string $reference = null;
+
+    #[ORM\Column(length: 1000, nullable: true)]
+    private ?string $image = null;
+
 
     public function __construct()
     {
@@ -201,6 +207,30 @@ class Produits
                 $existe->setFkProduitId(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): static
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
 
         return $this;
     }
