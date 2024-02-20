@@ -1,16 +1,25 @@
 <?php
 
 namespace App\Controller;
-
 use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class GetUserMailController extends AbstractController
 {
+    private $entityManager;
+    private $passwordEncoder;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/api/mail', name: 'app_get_user_mail', methods: ['POST'])]
     public function getUserByMail(Request $request): JsonResponse
     {
@@ -27,11 +36,10 @@ class GetUserMailController extends AbstractController
         $mdp = $data['mdp'];
 
         // Récupérer l'utilisateur par email depuis la base de données
-        $entityManager = $this->getDoctrine()->getManager();
-        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
         // Vérifier si l'utilisateur existe et si le mot de passe est valide
-        if ($user && $this->get('security.password_encoder')->isPasswordValid($user, $mdp)) {
+        if ($user && $this->passwordEncoder->isPasswordValid($user, $mdp)) {
             // Vous pouvez ajouter d'autres vérifications ici si nécessaire
 
             return $this->json($user, 200);
