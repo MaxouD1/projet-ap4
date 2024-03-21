@@ -33,9 +33,6 @@ class Produits
     #[ORM\JoinColumn(nullable: false)]
     private ?Rayon $rayon = null;
 
-    #[ORM\OneToMany(mappedBy: 'fkProduit', targetEntity: Stocker::class)]
-    private Collection $stockers;
-
     #[ORM\OneToMany(mappedBy: 'fkProduit', targetEntity: Contenir::class)]
     private Collection $contenirs;
 
@@ -51,7 +48,7 @@ class Produits
 
     public function __construct()
     {
-        $this->stockers = new ArrayCollection();
+       
         $this->contenirs = new ArrayCollection();
         $this->existes = new ArrayCollection();
     }
@@ -117,36 +114,6 @@ class Produits
     public function setRayonId(?Rayon $rayon): static
     {
         $this->rayon = $rayon;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Stocker>
-     */
-    public function getStockers(): Collection
-    {
-        return $this->stockers;
-    }
-
-    public function addStocker(Stocker $stocker): static
-    {
-        if (!$this->stockers->contains($stocker)) {
-            $this->stockers->add($stocker);
-            $stocker->setFkProduitId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeStocker(Stocker $stocker): static
-    {
-        if ($this->stockers->removeElement($stocker)) {
-            // set the owning side to null (unless already changed)
-            if ($stocker->getFkProduitId() === $this) {
-                $stocker->setFkProduitId(null);
-            }
-        }
 
         return $this;
     }
