@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class GetUserMailController extends AbstractController
 {
@@ -19,7 +20,7 @@ class GetUserMailController extends AbstractController
     }
 
     #[Route('/api/mail', name: 'app_get_user_mail', methods: ['POST'])]
-    public function getUserByMail(Request $request): JsonResponse
+    public function getUserByMail(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         // Récupérer le contenu JSON de la requête
         $data = json_decode($request->getContent(), true);
@@ -33,11 +34,13 @@ class GetUserMailController extends AbstractController
         $email = $data['email'];
         $mdp = $data['mdp'];
 
+        
         // Récupérer l'utilisateur par email depuis la base de données
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
+     
         // Vérifier si l'utilisateur existe et si le mot de passe correspond
-        if ($user && $user->getPassword() === $mdp) {
+        if ($user && $passwordHasher->isPasswordValid($user, $mdp)) {
             return $this->json($user, 200);
         } else {
             return $this->json(['error' => 'Utilisateur non trouvé ou mot de passe invalide.'], 404);
